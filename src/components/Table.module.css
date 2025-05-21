@@ -1,0 +1,24 @@
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0; /* opcional, pra evitar espaçamentos indesejados */
+    table-layout: auto;
+}
+
+.table th,
+.table td {
+    width: 1%;
+    white-space: nowrap;
+    height: 30px;
+    padding: 15px;
+    background-color: black;
+    border: 1px solid gray;
+}
+
+.table td {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.table tr {
+    width: 100%;
+}

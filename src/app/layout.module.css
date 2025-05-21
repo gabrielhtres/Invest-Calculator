@@ -1,0 +1,14 @@
+.header, .footer {
+    width: 100vw;
+    height: 10vh;
+    background-color: orange;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main {
+    width: 100vw;
+    height: 80vh;
+    padding: 50px;
+}
