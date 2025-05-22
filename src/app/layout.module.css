@@ -10,5 +10,22 @@
 .main {
     width: 100vw;
     height: 80vh;
-    padding: 50px;
+    display: flex;
+    flex-direction: row;
+
+    div {
+        padding: 50px;
+        width: 100%;
+        overflow-y: auto;
+    }
+}
+
+.nav {
+    background-color: lightsalmon;
+    width: 15%;
+
+    ul {
+        list-style: none;
+        padding: 20px;
+    }
 }

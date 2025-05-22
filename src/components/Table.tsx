@@ -17,6 +17,8 @@ export default function Table<T extends object>({
   data,
   columns,
 }: TableProps<T>) {
+  if (!data.length) return null;
+
   return (
     <table className={styles.table}>
       <thead>
@@ -37,9 +39,10 @@ export default function Table<T extends object>({
 
       <tbody>
         {data.map((row, dataIndex) => (
-          <tr>
+          <tr key={`tr-${dataIndex}`}>
             {columns.map((column, columnIndex) => (
               <td
+                key={`td-${column.key}`}
                 style={{
                   textAlign: column.align || "center",
                   borderBottomLeftRadius:
@@ -50,7 +53,6 @@ export default function Table<T extends object>({
                       ? 10
                       : 0,
                 }}
-                key={`td-${column.key}`}
               >
                 {column.customRender
                   ? column.customRender(row)

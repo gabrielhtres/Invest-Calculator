@@ -27,7 +27,15 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <header className={styles.header}>Invest Calculator</header>
-        <main className={styles.main}>{children}</main>
+        <main className={styles.main}>
+          <nav className={styles.nav}>
+            <ul>
+              <li>Classes de Ativos</li>
+              <li>Ativos</li>
+            </ul>
+          </nav>
+          <div>{children}</div>
+        </main>
         <footer className={styles.footer}>Desenvolvido por mim mesmo</footer>
       </body>
     </html>
