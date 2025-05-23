@@ -1,0 +1,9 @@
+.nav {
+  background-color: lightsalmon;
+  width: 15%;
+
+  ul {
+    list-style: none;
+    padding: 20px;
+  }
+}

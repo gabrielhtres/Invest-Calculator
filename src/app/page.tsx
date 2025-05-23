@@ -1,7 +1,8 @@
 "use client";
 
-import Table, { ColumnType } from "@/components/Table";
-import { ChangeEvent, ChangeEventHandler, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
+import * as XLSX from "xlsx";
+import { getTypeBySheetName } from "./utils";
 
 interface Data {
   name: string;
@@ -9,74 +10,78 @@ interface Data {
   price: number;
   quantity: number;
   total: number;
-  percentage: number;
+  type: string;
+  percentage?: number;
+}
+
+interface StockData {
+  [key: string]: string;
 }
 
 export default function Home() {
-  const [stockData, setStockData] = useState<Data[]>([]);
+  const [data, setData] = useState<Data[]>([]);
+  // const tickers = [
+  //   "PETR3",
+  //   "VALE3",
+  //   "ITUB4",
+  //   "B3SA3",
+  //   "MGLU3",
+  //   "LREN3",
+  //   "ABEV3",
+  //   "ITSA4",
+  //   "BBAS3",
+  //   "BBDC3",
+  // ];
 
-  const tickers = [
-    "PETR3",
-    "VALE3",
-    "ITUB4",
-    "B3SA3",
-    "MGLU3",
-    "LREN3",
-    "ABEV3",
-    "ITSA4",
-    "BBAS3",
-    "BBDC3",
-  ];
+  // const columns: ColumnType<Data>[] = [
+  //   { key: "name", title: "Nome" },
+  //   { key: "ticker", title: "Ticker" },
+  //   {
+  //     key: "price",
+  //     title: "Preço",
+  //     customRender: (value) => `R$ ${value.price.toFixed(2)}`,
+  //   },
+  //   { key: "quantity", title: "Quantidade" },
+  //   {
+  //     key: "total",
+  //     title: "Total",
+  //     customRender: (value) => `R$ ${value.total.toFixed(2)}`,
+  //   },
+  //   {
+  //     key: "percentage",
+  //     title: "Porcentagem",
+  //     customRender: (value) => `${value.percentage?.toFixed(2)}%`,
+  //   },
+  // ];
 
-  const columns: ColumnType<Data>[] = [
-    { key: "name", title: "Nome" },
-    { key: "ticker", title: "Ticker" },
-    {
-      key: "price",
-      title: "Preço",
-      customRender: (value) => `R$ ${value.price.toFixed(2)}`,
-    },
-    { key: "quantity", title: "Quantidade" },
-    {
-      key: "total",
-      title: "Total",
-      customRender: (value) => `R$ ${value.total.toFixed(2)}`,
-    },
-    {
-      key: "percentage",
-      title: "Porcentagem",
-      customRender: (value) => `${value.percentage.toFixed(2)}%`,
-    },
-  ];
+  // const data = [
+  //   {
+  //     name: "Petrobras",
+  //     ticker: "PETR3",
+  //     price: 30.2,
+  //     quantity: 10,
+  //     total: 302.0,
+  //     percentage: 50.2,
+  //   },
+  //   {
+  //     name: "Vale",
+  //     ticker: "VALE3",
+  //     price: 50.0,
+  //     quantity: 5,
+  //     total: 250.0,
+  //     percentage: 41.67,
+  //   },
+  //   {
+  //     name: "Itaú",
+  //     ticker: "ITUB4",
+  //     price: 20.98,
+  //     quantity: 15,
+  //     total: 314.7,
+  //     percentage: 50.0,
+  //   },
+  // ];
 
-  const data = [
-    {
-      name: "Petrobras",
-      ticker: "PETR3",
-      price: 30.2,
-      quantity: 10,
-      total: 302.0,
-      percentage: 50.2,
-    },
-    {
-      name: "Vale",
-      ticker: "VALE3",
-      price: 50.0,
-      quantity: 5,
-      total: 250.0,
-      percentage: 41.67,
-    },
-    {
-      name: "Itaú",
-      ticker: "ITUB4",
-      price: 20.98,
-      quantity: 15,
-      total: 314.7,
-      percentage: 50.0,
-    },
-  ];
-
-  useEffect(() => console.log(stockData), [stockData]);
+  // useEffect(() => console.log(stockData), [stockData]);
 
   // const fetchData = async (tickers: string[]) => {
   //   const data = await Promise.all(
@@ -92,44 +97,58 @@ export default function Home() {
   //   console.log(data);
   // };
 
-  const makeData = (event: ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files || !event.target.files.length) return;
+  const extractName = (str: string) => {
+    const match = str.match(/^[A-Z0-9]+(?:[0-9])?\s*-\s*(.+)$/i);
+    console.log("match", match);
+    console.log("str", match ? match[1].trim() : str.trim());
+    return match ? match[1].trim() : str.trim();
+  };
 
-    const file = event.target.files[0];
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
     const reader = new FileReader();
-    const stockData: Data[] = [];
+    const newData: Data[] = [];
 
-    reader.onload = (e) => {
-      const text = e.target?.result;
-      console.log("Conteúdo do CSV:", text);
-      const lines = (text as string).split("\n");
-      const data = lines.map((line) => line.split(","));
+    reader.onload = (evt) => {
+      const binaryStr = evt.target?.result;
+      const workbook = XLSX.read(binaryStr, { type: "binary" });
 
-      data.forEach((row) => {
-        const price = parseFloat(row[12].slice(2, -2).split(" ")[1]);
-        const quantity = parseInt(row[8].slice(1, -1));
-        const total = price * quantity;
+      workbook.SheetNames.forEach((sheetName) => {
+        const sheet = workbook.Sheets[sheetName];
 
-        stockData.push({
-          name: row[0].slice(9),
-          ticker: row[3].slice(1, -1),
-          price,
-          quantity,
-          total,
-          percentage: 0,
+        const jsonData = XLSX.utils.sheet_to_json(sheet).slice(0, -3);
+
+        jsonData.forEach((item) => {
+          const currentItem = item as StockData;
+          const newItem = {
+            name: extractName(currentItem["Produto"]),
+            ticker: currentItem["Código de Negociação"],
+            price: parseFloat(currentItem["Preço de Fechamento"]),
+            quantity: parseFloat(currentItem["Quantidade"]),
+            total: parseFloat(currentItem["Valor Atualizado"]),
+            type: getTypeBySheetName(sheetName),
+          };
+
+          newData.push(newItem);
         });
       });
 
-      setStockData(stockData);
+      setData(newData);
     };
 
-    reader.readAsText(file);
+    reader.readAsBinaryString(file);
   };
+
+  // useEffect(() => console.log(data), [data]);
 
   return (
     <>
-      <input type="file" accept=".csv" onChange={makeData} />
-      <Table data={stockData} columns={columns} />
+      <input type="file" accept=".xlsx" onChange={handleFileUpload} />
     </>
   );
 }

@@ -1,31 +1,22 @@
-.header, .footer {
-    width: 100vw;
-    height: 10vh;
-    background-color: orange;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.header,
+.footer {
+  width: 100vw;
+  height: 10vh;
+  background-color: orange;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .main {
-    width: 100vw;
-    height: 80vh;
-    display: flex;
-    flex-direction: row;
+  width: 100vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: row;
 
-    div {
-        padding: 50px;
-        width: 100%;
-        overflow-y: auto;
-    }
-}
-
-.nav {
-    background-color: lightsalmon;
-    width: 15%;
-
-    ul {
-        list-style: none;
-        padding: 20px;
-    }
+  div {
+    padding: 50px;
+    width: 100%;
+    overflow-y: auto;
+  }
 }

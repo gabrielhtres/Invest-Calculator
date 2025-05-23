@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import styles from "./layout.module.css";
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,12 +29,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <header className={styles.header}>Invest Calculator</header>
         <main className={styles.main}>
-          <nav className={styles.nav}>
-            <ul>
-              <li>Classes de Ativos</li>
-              <li>Ativos</li>
-            </ul>
-          </nav>
+          <Navbar />
           <div>{children}</div>
         </main>
         <footer className={styles.footer}>Desenvolvido por mim mesmo</footer>
