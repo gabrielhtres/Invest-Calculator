@@ -14,7 +14,7 @@ export default function Navbar() {
           <Link href="/asset-classes">Classes de Ativos</Link>
         </li>
         <li>
-          <Link href="/holdings">Ativos</Link>
+          <Link href="/assets">Ativos</Link>
         </li>
       </ul>
     </nav>

@@ -1,12 +1,12 @@
 "use client";
 
 import { Treemap } from "recharts";
-import styles from "./HoldingsGraphs.module.css";
-import { holdingsClasses } from "@/app/utils";
+import styles from "./AssetsGraphs.module.css";
+import { assetsClasses } from "@/app/utils";
 
-export default function HoldingsGraphs() {
+export default function AssetsGraphs() {
   const values = {
-    stocks: 20,
+    stock: 20,
     fii: 30,
     treasure: 20,
     etf: 10,
@@ -21,7 +21,7 @@ export default function HoldingsGraphs() {
         height={250}
         data={[...Object.entries(values)].map(([key, value]) => ({
           name: `${
-            holdingsClasses[key as keyof typeof holdingsClasses]
+            assetsClasses[key as keyof typeof assetsClasses]
           } (${value}%)`,
           size: value,
           fill: "red",
@@ -33,9 +33,9 @@ export default function HoldingsGraphs() {
         className={styles.graph}
       />
 
-      {Object.keys(holdingsClasses).map((key) => (
+      {Object.keys(assetsClasses).map((key) => (
         <>
-          <h4>{holdingsClasses[key as keyof typeof holdingsClasses]}</h4>
+          <h4>{assetsClasses[key as keyof typeof assetsClasses]}</h4>
           <Treemap
             width={730}
             height={250}

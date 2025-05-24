@@ -1,25 +1,30 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import { getTypeBySheetName } from "../utils";
-
-interface Data {
-  name: string;
-  ticker: string;
-  price: number;
-  quantity: number;
-  total: number;
-  type: string;
-  percentage?: number;
-}
+import { AssetData } from "../types";
 
 interface StockData {
   [key: string]: string;
 }
 
 export default function Page() {
-  const [data, setData] = useState<Data[]>([]);
+  const [data, setData] = useState<AssetData[]>([]);
+
+  useEffect(() => {
+    async function fetchAssets() {
+      try {
+        const res = await fetch("/api/assets");
+        const data = await res.json();
+        console.log(data);
+      } catch (err) {
+        console.error("Erro ao buscar assets:", err);
+      }
+    }
+
+    fetchAssets();
+  }, []);
 
   const extractName = (str: string) => {
     const match = str.match(/^[A-Z0-9]+(?:[0-9])?\s*-\s*(.+)$/i);
@@ -34,7 +39,7 @@ export default function Page() {
     if (!file) return;
 
     const reader = new FileReader();
-    const newData: Data[] = [];
+    const newData: AssetData[] = [];
 
     reader.onload = (evt) => {
       const binaryStr = evt.target?.result;
@@ -54,6 +59,7 @@ export default function Page() {
             quantity: parseFloat(currentItem["Quantidade"]),
             total: parseFloat(currentItem["Valor Atualizado"]),
             type: getTypeBySheetName(sheetName),
+            percentage: null,
           };
 
           newData.push(newItem);

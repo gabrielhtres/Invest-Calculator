@@ -2,7 +2,7 @@
 .footer {
   width: 100vw;
   height: 10vh;
-  background-color: orange;
+  background-color: #0B1F3A;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,7 +10,7 @@
 
 .main {
   width: 100vw;
-  height: 80vh;
+  height: 90vh;
   display: flex;
   flex-direction: row;
 
