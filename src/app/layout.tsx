@@ -30,7 +30,7 @@ export default function RootLayout({
         <header className={styles.header}>Invest Calculator</header>
         <main className={styles.main}>
           <Navbar />
-          <div>{children}</div>
+          <div className={styles.children}>{children}</div>
         </main>
         <footer className={styles.footer}>Desenvolvido por mim mesmo</footer>
       </body>

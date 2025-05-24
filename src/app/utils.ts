@@ -11,4 +11,12 @@ const getTypeBySheetName = (name: string) => {
   return type;
 };
 
-export { getTypeBySheetName };
+const holdingsClasses = {
+  stocks: "Ações",
+  bdr: "BDR",
+  etf: "ETF",
+  fii: "Fundos Imobiliários",
+  treasure: "Tesouro Direto",
+};
+
+export { getTypeBySheetName, holdingsClasses };
