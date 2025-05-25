@@ -1,5 +1,5 @@
 interface AssetData {
-  id: string;
+  id: number;
   userId: string;
   name: string;
   ticker: string;

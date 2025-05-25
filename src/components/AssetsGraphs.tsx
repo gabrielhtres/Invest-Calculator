@@ -3,6 +3,7 @@
 import { Treemap } from "recharts";
 import styles from "./AssetsGraphs.module.css";
 import { assetsClasses } from "@/app/utils";
+import { Fragment } from "react";
 
 export default function AssetsGraphs() {
   const values = {
@@ -34,7 +35,7 @@ export default function AssetsGraphs() {
       />
 
       {Object.keys(assetsClasses).map((key) => (
-        <>
+        <Fragment key={key}>
           <h4>{assetsClasses[key as keyof typeof assetsClasses]}</h4>
           <Treemap
             width={730}
@@ -72,7 +73,7 @@ export default function AssetsGraphs() {
             fill="#8884d8"
             className={styles.graph}
           />
-        </>
+        </Fragment>
       ))}
     </>
   );
