@@ -1,8 +1,6 @@
 "use client";
 
-import { useToken } from "@/context/GlobalContext";
 import { supabase } from "@/lib/supabase";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Login() {

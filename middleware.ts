@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
 export async function middleware(req: NextRequest) {
+  console.log("veio no middleware");
   const res = NextResponse.next();
   const supabase = createMiddlewareClient({ req, res });
 
@@ -17,5 +18,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/asset-classes", "/asset"], // rotas protegidas
+  matcher: ["/", "/asset-classes/:path*", "/asset/:path*"],
 };

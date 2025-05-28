@@ -1,23 +1,34 @@
-import { AssetData } from "@/app/types";
 import { prisma } from "@/lib/prisma";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import {
+  createServerActionClient,
+  createServerComponentClient,
+} from "@supabase/auth-helpers-nextjs";
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { z } from "zod";
 
-const assetClassSchema = z.object({
-  userId: z.string().min(1),
-  name: z.string(),
-  ticker: z.string(),
-  price: z.number().positive(),
-  quantity: z.number().nonnegative(),
-  total: z.number().nonnegative(),
-  type: z.enum(["stock", "etf", "bdr", "fii", "treasure"]),
-  percentage: z.number().optional(),
+// const assetClassSchema = z.object({
+//   userId: z.string().min(1),
+//   name: z.string(),
+//   ticker: z.string(),
+//   price: z.number().positive(),
+//   quantity: z.number().nonnegative(),
+//   total: z.number().nonnegative(),
+//   type: z.enum(["stock", "etf", "bdr", "fii", "treasure"]),
+//   percentage: z.number().optional(),
+// });
+const requestSchema = z.object({
+  stock: z.string().nonempty(),
+  bdr: z.string().nonempty(),
+  etf: z.string().nonempty(),
+  fii: z.string().nonempty(),
+  treasure: z.string().nonempty(),
 });
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET() {
   try {
-    const supabase = createMiddlewareClient({ req, res });
+    const supabase = createServerActionClient({ cookies: () => cookies() });
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -29,54 +40,46 @@ export async function GET(req: NextRequest, res: NextResponse) {
     });
 
     return NextResponse.json(assetClasses);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ erro: "Erro interno" }, { status: 500 });
   }
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
-    const supabase = createMiddlewareClient({ req, res });
+    const supabase = createServerActionClient({ cookies: () => cookies() });
 
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
     const body = await req.json();
-    const newAssets: AssetData[] = [];
 
-    body.forEach(async (assetClass: AssetClassData) => {
-      const validated = assetClassSchema.parse({
-        ...asset,
+    const validated = requestSchema.parse({
+      ...body,
+    });
+
+    const assetClass = await prisma.assetClass.findFirst({
+      where: {
         userId: session?.user.id ?? "",
-      });
+      },
+    });
 
-      const existingAsset = await prisma.asset.findFirst({
-        where: {
-          userId: validated.userId,
-          ticker: validated.ticker,
-        },
-      });
-
-      if (existingAsset) {
-        const newAsset = await prisma.asset.update({
-          where: { id: existingAsset.id },
+    const newAssetClass = !assetClass
+      ? await prisma.assetClass.create({
           data: {
-            total: existingAsset.total + validated.total,
+            userId: session?.user.id ?? "",
+            ...validated,
+          },
+        })
+      : await prisma.assetClass.update({
+          where: { id: assetClass.id },
+          data: {
+            ...validated,
           },
         });
 
-        newAssets.push(newAsset);
-      } else {
-        const newAsset = await prisma.asset.create({
-          data: validated,
-        });
-
-        newAssets.push(newAsset);
-      }
-    });
-
-    return NextResponse.json(newAssets);
+    return NextResponse.json(newAssetClass);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

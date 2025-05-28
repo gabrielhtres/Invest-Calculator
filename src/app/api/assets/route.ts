@@ -1,8 +1,9 @@
 import { AssetData } from "@/app/types";
 import { prisma } from "@/lib/prisma";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { cookies } from "next/headers";
 
 const assetSchema = z.object({
   userId: z.string().min(1),
@@ -15,9 +16,9 @@ const assetSchema = z.object({
   percentage: z.number().optional(),
 });
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET() {
   try {
-    const supabase = createMiddlewareClient({ req, res });
+    const supabase = createServerComponentClient({ cookies });
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -29,14 +30,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
     });
 
     return NextResponse.json(assets);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ erro: "Erro interno" }, { status: 500 });
   }
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
-    const supabase = createMiddlewareClient({ req, res });
+    const supabase = createServerComponentClient({ cookies });
     const {
       data: { session },
     } = await supabase.auth.getSession();

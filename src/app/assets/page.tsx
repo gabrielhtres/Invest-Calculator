@@ -29,6 +29,7 @@ export default function Page() {
 
   useEffect(() => {
     const supabase = createClientComponentClient();
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
     });

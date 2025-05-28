@@ -11,8 +11,15 @@ interface AssetData {
 }
 
 interface AssetClassData {
-  name: string;
-  percentage: number;
+  id: number;
+  stock: string;
+  bdr: string;
+  etf: string;
+  fii: string;
+  treasure: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export type { AssetData };
+export type { AssetData, AssetClassData };
