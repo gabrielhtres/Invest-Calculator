@@ -7,6 +7,7 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
+import { createSupabaseServerClient } from "@/lib/createServerClient";
 
 // const assetClassSchema = z.object({
 //   userId: z.string().min(1),
@@ -28,17 +29,15 @@ const requestSchema = z.object({
 
 export async function GET() {
   try {
-    const supabase = createServerActionClient({
-      cookies: async () => await cookies(),
-    });
+    const supabase = await createSupabaseServerClient();
 
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
     const assetClasses = await prisma.assetClass.findMany({
       where: {
-        userId: session?.user.id ?? "",
+        userId: user?.id ?? "",
       },
     });
 
@@ -50,44 +49,39 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const cookiesStore = await req.cookies;
-    console.log("cookiesStore", cookiesStore);
-    // const supabase = createRouteHandlerClient({
-    //   cookies: cookiesStore,
-    // });
+    const supabase = await createSupabaseServerClient();
 
-    // const {
-    //   data: { session },
-    // } = await supabase.auth.getSession();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    // const body = await req.json();
+    const body = await req.json();
 
-    // const validated = requestSchema.parse({
-    //   ...body,
-    // });
-
-    // const assetClass = await prisma.assetClass.findFirst({
-    //   where: {
-    //     userId: session?.user.id ?? "",
-    //   },
-    // });
-
-    // const newAssetClass = !assetClass
-    //   ? await prisma.assetClass.create({
-    //       data: {
-    //         userId: session?.user.id ?? "",
-    //         ...validated,
-    //       },
-    //     })
-    //   : await prisma.assetClass.update({
-    //       where: { id: assetClass.id },
-    //       data: {
-    //         ...validated,
-    //       },
-    //     });
-    return NextResponse.json({
-      message: "Asset classes are not implemented yet",
+    const validated = requestSchema.parse({
+      ...body,
     });
+
+    const assetClass = await prisma.assetClass.findFirst({
+      where: {
+        userId: user?.id ?? "",
+      },
+    });
+
+    const newAssetClass = !assetClass
+      ? await prisma.assetClass.create({
+          data: {
+            userId: user?.id ?? "",
+            ...validated,
+          },
+        })
+      : await prisma.assetClass.update({
+          where: { id: assetClass.id },
+          data: {
+            ...validated,
+          },
+        });
+
+    return NextResponse.json(newAssetClass);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

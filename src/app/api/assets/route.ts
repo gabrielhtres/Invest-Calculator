@@ -4,6 +4,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { cookies } from "next/headers";
+import { createSupabaseServerClient } from "@/lib/createServerClient";
 
 const assetSchema = z.object({
   userId: z.string().min(1),
@@ -18,16 +19,19 @@ const assetSchema = z.object({
 
 export async function GET() {
   try {
-    const supabase = createServerComponentClient({ cookies });
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const supabase = await createSupabaseServerClient();
 
-    const assets = await prisma.asset.findMany({
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const assets = await prisma.asset.findFirstOrThrow({
       where: {
-        userId: session?.user.id ?? "",
+        userId: user?.id ?? "",
       },
     });
+
+    console.log("assets", assets);
 
     return NextResponse.json(assets);
   } catch {
