@@ -16,6 +16,9 @@ export default function Navbar() {
         <li>
           <Link href="/assets">Ativos</Link>
         </li>
+        <li>
+          <Link href="/assets-meta">Ativos Meta</Link>
+        </li>
       </ul>
     </nav>
   );
