@@ -41,15 +41,27 @@ model Asset {
 }
 
 model AssetClass {
-  id         Int       @id @default(autoincrement())
-  userId     String
-  stock      String
-  etf        String
-  bdr        String
-  fii        String
-  treasure   String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    String
+  stock     String
+  etf       String
+  bdr       String
+  fii       String
+  treasure  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+model AssetMeta {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  ticker    String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([ticker])
 }

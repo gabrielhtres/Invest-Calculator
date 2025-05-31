@@ -1,9 +1,7 @@
 import { AssetData } from "@/app/types";
 import { prisma } from "@/lib/prisma";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/createServerClient";
 
 const assetSchema = z.object({
@@ -64,8 +62,9 @@ export async function POST(req: NextRequest) {
         const newAsset = await prisma.asset.update({
           where: { id: existingAsset.id },
           data: {
-            quantity: existingAsset.quantity + validated.quantity,
-            total: existingAsset.total + validated.total,
+            quantity: validated.quantity,
+            total: validated.total,
+            percentage: validated.percentage,
           },
         });
 

@@ -1,9 +1,5 @@
-import { AssetData } from "@/app/types";
-import { prisma } from "@/lib/prisma";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/createServerClient";
 
 const loginSchema = z.object({
