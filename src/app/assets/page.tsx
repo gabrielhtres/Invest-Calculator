@@ -13,7 +13,6 @@ interface StockData {
 }
 
 interface PartialAssetData {
-  userId: string;
   name: string;
   ticker: string;
   price: number;
@@ -25,15 +24,6 @@ interface PartialAssetData {
 
 export default function Page() {
   const [data, setData] = useState<AssetData[]>([]);
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    const supabase = createClientComponentClient();
-
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-  }, []);
 
   useEffect(() => {
     async function fetchAssets() {
@@ -46,7 +36,7 @@ export default function Page() {
         });
 
         const data = await res.json();
-        console.log("data", data);
+        setData(data);
       } catch (err) {
         console.error("Erro ao buscar assets:", err);
       }
@@ -82,7 +72,6 @@ export default function Page() {
         jsonData.forEach((item) => {
           const currentItem = item as StockData;
           const newItem = {
-            userId: session?.user.id ?? "",
             name: extractName(currentItem["Produto"]),
             ticker: currentItem["Código de Negociação"],
             price: parseFloat(currentItem["Preço de Fechamento"]),
@@ -98,7 +87,7 @@ export default function Page() {
 
       const total = newData.reduce((acc, item) => acc + item.total, 0);
       const updatedData = newData.map((item) => {
-        const percentage = ((item.total / total) * 100).toFixed(2);
+        const percentage = (item.total / total) * 100;
         return { ...item, percentage };
       });
 
@@ -125,6 +114,33 @@ export default function Page() {
     {
       key: "name",
       title: "Nome",
+    },
+    {
+      key: "ticker",
+      title: "Ticker",
+    },
+    {
+      key: "price",
+      title: "Preço",
+      customRender: (row) => `R$ ${row.price.toFixed(2)}`,
+    },
+    {
+      key: "quantity",
+      title: "Quantidade",
+    },
+    {
+      key: "total",
+      title: "Total",
+      customRender: (row) => `R$ ${row.total.toFixed(2)}`,
+    },
+    {
+      key: "type",
+      title: "Tipo",
+    },
+    {
+      key: "percentage",
+      title: "% do total",
+      customRender: (row) => `${row.percentage?.toFixed(2)}%`,
     },
   ];
 

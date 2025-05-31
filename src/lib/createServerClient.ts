@@ -11,6 +11,13 @@ export async function createSupabaseServerClient() {
     {
       cookies: {
         get: (name) => cookieStore.get(name)?.value,
+        set: (name, value, options) => {
+          console.log("Setting cookie:", value);
+          cookieStore.set({ name, value, ...options });
+        },
+        remove: (name, options) => {
+          cookieStore.delete({ name, ...options });
+        },
       },
     }
   );

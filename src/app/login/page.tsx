@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -19,14 +20,19 @@ export default function Login() {
     });
 
     if (error) {
-      console.error("Erro ao fazer login:", error);
+      console.error("Erro ao fazer login:", error.message);
+      alert("Erro ao fazer login: " + error.message);
       return;
     }
 
-    if (data) {
-      console.log("Login bem-sucedido");
-      router.replace("/");
+    if (!data.session) {
+      console.error("Usuário não autenticado");
+      alert("Usuário não autenticado");
+      return;
     }
+
+    console.log("Login bem-sucedido:", data);
+    router.replace("/"); // redireciona para a página inicial após login
   };
 
   return (

@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/createServerClient";
 
 const assetSchema = z.object({
-  userId: z.string().min(1),
+  userId: z.string(),
   name: z.string(),
   ticker: z.string(),
   price: z.number().positive(),
@@ -25,13 +25,11 @@ export async function GET() {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const assets = await prisma.asset.findFirstOrThrow({
+    const assets = await prisma.asset.findMany({
       where: {
         userId: user?.id ?? "",
       },
     });
-
-    console.log("assets", assets);
 
     return NextResponse.json(assets);
   } catch {
@@ -41,18 +39,18 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = await createSupabaseServerClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
     const body = await req.json();
     const newAssets: AssetData[] = [];
 
-    body.forEach(async (asset: AssetData) => {
+    await body.forEach(async (asset: AssetData) => {
       const validated = assetSchema.parse({
         ...asset,
-        userId: session?.user.id ?? "",
+        userId: user?.id ?? "",
       });
 
       const existingAsset = await prisma.asset.findFirst({
@@ -80,6 +78,8 @@ export async function POST(req: NextRequest) {
         newAssets.push(newAsset);
       }
     });
+
+    console.log("newAssets", newAssets);
 
     return NextResponse.json(newAssets);
   } catch (error) {

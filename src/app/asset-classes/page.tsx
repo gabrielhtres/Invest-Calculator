@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./page.module.css";
 import { assetsClasses } from "../utils";
 import { api } from "@/lib/api";
@@ -19,16 +19,36 @@ export default function Page() {
     api
       .get<AssetClassData[]>("/api/asset-classes")
       .then((res) => {
-        console.log("res", res[0]);
+        if (res.length > 0) {
+          setValues({
+            stock: res[0].stock,
+            fii: res[0].fii,
+            treasure: res[0].treasure,
+            etf: res[0].etf,
+            bdr: res[0].bdr,
+          });
+        }
       })
       .catch((err) => console.error("Erro ao buscar porcentagens:", err));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    const otherTotal = Object.entries(values).reduce((acc, [key, val]) => {
+      if (key !== name) {
+        acc += Number(val);
+      }
+
+      return acc;
+    }, 0);
+
     setValues((prevValues) => ({
       ...prevValues,
-      [name]: value,
+      [name]:
+        Number(value) + otherTotal > 100
+          ? String(100 - otherTotal)
+          : String(value),
     }));
   };
 

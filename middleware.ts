@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
 export async function middleware(req: NextRequest) {
-  console.log("veio no middleware");
   const res = NextResponse.next();
   const supabase = createMiddlewareClient({ req, res });
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
+    console.log("Usuário não autenticado, redirecionando para login");
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -18,5 +18,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/asset-classes/:path*", "/asset/:path*"],
+  matcher: ["/", "/asset-classes", "/assets"],
+  runtime: "nodejs",
 };
