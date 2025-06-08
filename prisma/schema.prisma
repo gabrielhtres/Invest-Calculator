@@ -54,7 +54,7 @@ model AssetClass {
   @@index([userId])
 }
 
-model AssetMeta {
+model AssetsMeta {
   id        Int      @id @default(autoincrement())
   userId    String
   ticker    String

@@ -1,12 +1,11 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
-import * as XLSX from "xlsx";
-import { getTypeBySheetName } from "../utils";
+import { useEffect, useState } from "react";
 import { AssetData } from "../types";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Session } from "@supabase/auth-helpers-nextjs";
 import Table, { ColumnType } from "@/components/Table";
+import Input from "@/components/Input";
+import styles from "./page.module.css";
+import Button from "@/components/Button";
 
 interface StockData {
   [key: string]: string;
@@ -45,70 +44,70 @@ export default function Page() {
     fetchAssets();
   }, []);
 
-  const extractName = (str: string) => {
-    const match = str.match(/^[A-Z0-9]+(?:[0-9])?\s*-\s*(.+)$/i);
-    return match ? match[1].trim() : str.trim();
-  };
+  // const extractName = (str: string) => {
+  //   const match = str.match(/^[A-Z0-9]+(?:[0-9])?\s*-\s*(.+)$/i);
+  //   return match ? match[1].trim() : str.trim();
+  // };
 
-  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+  // const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
+  //   if (!e.target.files) return;
 
-    const file = e.target.files[0];
+  //   const file = e.target.files[0];
 
-    if (!file) return;
+  //   if (!file) return;
 
-    const reader = new FileReader();
-    const newData: PartialAssetData[] = [];
+  //   const reader = new FileReader();
+  //   const newData: PartialAssetData[] = [];
 
-    reader.onload = (evt) => {
-      const binaryStr = evt.target?.result;
-      const workbook = XLSX.read(binaryStr, { type: "binary" });
+  //   reader.onload = (evt) => {
+  //     const binaryStr = evt.target?.result;
+  //     const workbook = XLSX.read(binaryStr, { type: "binary" });
 
-      workbook.SheetNames.forEach((sheetName) => {
-        const sheet = workbook.Sheets[sheetName];
+  //     workbook.SheetNames.forEach((sheetName) => {
+  //       const sheet = workbook.Sheets[sheetName];
 
-        const jsonData = XLSX.utils.sheet_to_json(sheet).slice(0, -3);
+  //       const jsonData = XLSX.utils.sheet_to_json(sheet).slice(0, -3);
 
-        jsonData.forEach((item) => {
-          const currentItem = item as StockData;
-          const newItem = {
-            name: extractName(currentItem["Produto"]),
-            ticker: currentItem["Código de Negociação"],
-            price: parseFloat(currentItem["Preço de Fechamento"]),
-            quantity: parseFloat(currentItem["Quantidade"]),
-            total: parseFloat(currentItem["Valor Atualizado"]),
-            type: getTypeBySheetName(sheetName),
-            percentage: null,
-          };
+  //       jsonData.forEach((item) => {
+  //         const currentItem = item as StockData;
+  //         const newItem = {
+  //           name: extractName(currentItem["Produto"]),
+  //           ticker: currentItem["Código de Negociação"],
+  //           price: parseFloat(currentItem["Preço de Fechamento"]),
+  //           quantity: parseFloat(currentItem["Quantidade"]),
+  //           total: parseFloat(currentItem["Valor Atualizado"]),
+  //           type: getTypeBySheetName(sheetName),
+  //           percentage: null,
+  //         };
 
-          newData.push(newItem);
-        });
-      });
+  //         newData.push(newItem);
+  //       });
+  //     });
 
-      const total = newData.reduce((acc, item) => acc + item.total, 0);
-      const updatedData = newData.map((item) => {
-        const percentage = (item.total / total) * 100;
-        return { ...item, percentage };
-      });
+  //     const total = newData.reduce((acc, item) => acc + item.total, 0);
+  //     const updatedData = newData.map((item) => {
+  //       const percentage = (item.total / total) * 100;
+  //       return { ...item, percentage };
+  //     });
 
-      fetch("/api/assets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      })
-        .then((res) =>
-          res
-            .json()
-            .then((data) => setData(data))
-            .catch((err) => console.error("Erro ao processar a resposta:", err))
-        )
-        .catch((err) => console.error("Erro ao enviar os dados:", err));
-    };
+  //     fetch("/api/assets", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(updatedData),
+  //     })
+  //       .then((res) =>
+  //         res
+  //           .json()
+  //           .then((data) => setData(data))
+  //           .catch((err) => console.error("Erro ao processar a resposta:", err))
+  //       )
+  //       .catch((err) => console.error("Erro ao enviar os dados:", err));
+  //   };
 
-    reader.readAsBinaryString(file);
-  };
+  //   reader.readAsBinaryString(file);
+  // };
 
   const columns: ColumnType<AssetData>[] = [
     {
@@ -145,10 +144,17 @@ export default function Page() {
   ];
 
   return (
-    <>
-      <input type="file" accept=".xlsx" onChange={handleFileUpload} />
+    <form>
+      {/* <input type="file" accept=".xlsx" onChange={handleFileUpload} /> */}
+      <div className={styles.inputs_row}>
+        <Input label="Ticker do Ativo" name="ticker" />
+        <Input label="Quantidade" name="quantity" type="number" step={1} />
+        <Input label="Preço" name="price" type="number" step={0.01} />
+
+        <Button>Adicionar</Button>
+      </div>
 
       <Table data={data} columns={columns} />
-    </>
+    </form>
   );
 }

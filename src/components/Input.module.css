@@ -1,0 +1,17 @@
+.default_input {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    label {
+        font-size: 14px;
+        height: 20px;
+    }
+
+    input {
+        height: 30px;
+        font-size: 14px;
+        padding: 10px;
+    }
+}
